@@ -18,9 +18,15 @@ namespace DBCRUDEMPLEADO.Controllers
 
         public IActionResult Index()
         {
-            List<Empleado> listaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList();
+            //List<Empleado> listaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList();
             //List<Cargo> listaCargo = _DBcontext.Cargos.ToList();
-            return View(listaEmpleado);
+
+            EmpleadoVM oEmpleadoVM = new EmpleadoVM()
+            {
+                oListaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList()
+            };
+
+            return View(oEmpleadoVM);
         }
 
         //[HttpGet]
@@ -43,6 +49,7 @@ namespace DBCRUDEMPLEADO.Controllers
         //    }
         //}
 
+        // Traer un elemento empleado vacio con una lista de cargo 
         [HttpGet]
         public IActionResult Empleado_Detalle()
         {
@@ -57,6 +64,21 @@ namespace DBCRUDEMPLEADO.Controllers
             };
 
             return View(oEmpleadoVM);
+        }
+
+        // Guardar en la DBCRUDEMPLEADO
+        [HttpPost]
+        public IActionResult Empleado_Detalle(EmpleadoVM oEmpleadoVM)
+        {
+            if (oEmpleadoVM.oEmpleado.IdEmpleado == 0)
+            {
+                _DBcontext.Empleados.Add(oEmpleadoVM.oEmpleado);
+            }
+
+            _DBcontext.SaveChanges();
+
+            // Redireccional vista
+            return RedirectToAction("Index", "Home");
         }
     }
 }

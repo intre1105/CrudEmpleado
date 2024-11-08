@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 
 namespace DBCRUDEMPLEADO.Models;
 
 public partial class Empleado
 {
-    public int IdEmpleado { get; set; }
+    public int? IdEmpleado { get; set; }
 
     public string? NombreCompleto { get; set; }
 

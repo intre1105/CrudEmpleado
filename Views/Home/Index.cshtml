@@ -1,20 +1,100 @@
-﻿@model List<DBCRUDEMPLEADO.Models.Empleado>
+﻿@* @model List<DBCRUDEMPLEADO.Models.Empleado> *@
+@model DBCRUDEMPLEADO.Models.ViewModels.EmpleadoVM
 @{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+@* <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    @* <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
-</div>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>*@
 
 <div class="card">
     <div class="card-header">
         <h5>Lista de empleados</h5>
     </div>
     <div class="card-body">
-        <a class="btn btn-success btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="0">Crear Nuevo</a>
+        <!-- Button trigger modal -->
+        <a class="btn btn-success btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="0" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Crear Nuevo</a>
 
+        <!-- Modal Guardar -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        @* Codicion para diferencial el titulo de encabezado del modal *@
+                        @if (@* Model.oEmpleado.IdEmpleado == 0 *@ 1+1==2)
+                        {
+                            <h5 class="modal-title" id="staticBackdropLabel">Nuevo Empleado</h5>
+                        }
+                        else
+                        {
+                            <h5 class="modal-title" id="staticBackdropLabel">Editar Empleado</h5>
+                        }
+     
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form asp-action="Empleado_Detalle" asp-controller="Home" method="post">
+                            <input type="hidden" asp-for="oEmpleado.IdEmpleado" />
+                            
+                            <div class="mb-2">
+                                <label class="form-label" asp-for="oEmpleado.NombreCompleto">Nombre Completo</label>
+                                <input class="form-control form-control-sm" asp-for="oEmpleado.NombreCompleto" type="text" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label" asp-for="oEmpleado.Correo">Correo</label>
+                                <input class="form-control form-control-sm" asp-for="oEmpleado.Correo" type="text" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label" asp-for="oEmpleado.Telefono">Telefono</label>
+                                <input class="form-control form-control-sm" asp-for="oEmpleado.Telefono" type="text" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="oEmpleado.IdCargo">Cargo</label>
+                                <select class="form-select form-select-sm" asp-for="oEmpleado.IdCargo" asp-items="@Model.oListaCargo">
+                                    <option selected disabled>-- Selecccionar --</option>
+                                </select>
+                            </div>
+                        </form>
+
+                       @*  <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Nombre Completo:</label>
+                            <input type="text" class="form-control" id="IdNombreCompleto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Correo:</label>
+                            <input type="text" class="form-control" id="IdCorreo">
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Telefono:</label>
+                            <input type="text" class="form-control" id="IdTelefono">
+                        </div> *@
+
+                    </div>
+                    <div class="modal-footer">               
+                        @* Codicion para diferencial botones guardar y editar del piez del modal *@
+                        @if (@* Model.oEmpleado.IdEmpleado == 0 *@ 1 + 1 == 2)
+                        {
+                            <button id="btnGuardarContacto" class="btn btn-success"> <i class="bi bi-floppy"></i> Guardar </button>
+                            <button type="button" class="btn btn-secondary btnCancelarModal" data-bs-dismiss="modal"> Cancelar </button>
+                        }
+                        else
+                        {
+                            <button id="btnGuardarContacto" class="btn btn-success"> <i class="bi bi-floppy"></i> Actualizar </button>
+                            <button type="button" class="btn btn-secondary btnCancelarModal" data-bs-dismiss="modal"> Cancelar </button>
+                        }                                               
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @* Tabla de detalles empleados *@
         <hr />
         <table class="table table-striped" id="tblEmpleados">
             <thead>
@@ -27,7 +107,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.oListaEmpleado)
                 {
                     <tr>
                         <td>@item.NombreCompleto</td>
@@ -35,7 +115,7 @@
                         <td>@item.Telefono</td>
                         <td>@item.oCargo.Descripcion</td>
                         <td>
-                            <a class="btn btn-primary btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Editar</a>
+                            <a class="btn btn-warning btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Editar</a>
                             <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Eliminar</a>
                         </td>
                     </tr>

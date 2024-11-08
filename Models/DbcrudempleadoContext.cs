@@ -10,8 +10,7 @@ public partial class DbcrudempleadoContext : DbContext
     {
     }
 
-    public DbcrudempleadoContext(DbContextOptions<DbcrudempleadoContext> options)
-        : base(options)
+    public DbcrudempleadoContext(DbContextOptions<DbcrudempleadoContext> options) : base(options)
     {
     }
 
