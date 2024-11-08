@@ -80,5 +80,62 @@ namespace DBCRUDEMPLEADO.Controllers
             // Redireccional vista
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public JsonResult GetEmpleados()
+        {
+            var empleados = _DBcontext.Empleados
+                .Include(e => e.oCargo)
+                .Select(e => new
+                {
+                    e.IdEmpleado,
+                    e.NombreCompleto,
+                    e.Correo,
+                    e.Telefono,
+                    CargoDescripcion = e.oCargo != null ? e.oCargo.Descripcion : "Sin Cargo"
+                })
+                .ToList();
+
+            return Json(empleados);
+        }
+
+        [HttpGet]
+        public JsonResult GetEmpleadoById(int idEmpleado)
+        {
+            var empleado = _DBcontext.Empleados
+                .Include(e => e.oCargo)
+                .Where(e => e.IdEmpleado == idEmpleado)
+                .Select(e => new
+                {
+                    e.IdEmpleado,
+                    e.NombreCompleto,
+                    e.Correo,
+                    e.Telefono,
+                    IdCargo = e.oCargo != null ? e.oCargo.IdCargo : (int?)null,
+                    CargoDescripcion = e.oCargo != null ? e.oCargo.Descripcion : "Sin Cargo"
+                })
+                .FirstOrDefault();
+
+            if (empleado == null)
+            {
+                return Json(new { success = false, message = "Empleado no encontrado" });
+            }
+
+            return Json(new { success = true, empleado });
+        }
+
+        [HttpGet]
+        public JsonResult GetCargos()
+        {
+            var cargos = _DBcontext.Cargos
+                .Select(c => new
+                {
+                    c.IdCargo,
+                    c.Descripcion
+                })
+                .ToList();
+
+            return Json(cargos);
+        }
     }
 }
