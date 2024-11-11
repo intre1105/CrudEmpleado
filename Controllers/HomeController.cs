@@ -21,12 +21,14 @@ namespace DBCRUDEMPLEADO.Controllers
             //List<Empleado> listaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList();
             //List<Cargo> listaCargo = _DBcontext.Cargos.ToList();
 
-            EmpleadoVM oEmpleadoVM = new EmpleadoVM()
-            {
-                oListaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList()
-            };
+            //EmpleadoVM oEmpleadoVM = new EmpleadoVM()
+            //{
+            //    oListaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList()
+            //};
 
-            return View(oEmpleadoVM);
+            //return View(oEmpleadoVM);
+
+            return View();
         }
 
         //[HttpGet]
@@ -50,36 +52,36 @@ namespace DBCRUDEMPLEADO.Controllers
         //}
 
         // Traer un elemento empleado vacio con una lista de cargo 
-        [HttpGet]
-        public IActionResult Empleado_Detalle()
-        {
-            EmpleadoVM oEmpleadoVM = new EmpleadoVM()
-            {
-                oEmpleado = new Empleado(),
-                oListaCargo = _DBcontext.Cargos.Select(cargo => new SelectListItem()
-                {
-                    Text = cargo.Descripcion,
-                    Value = cargo.IdCargo.ToString()
-                }).ToList()
-            };
+        //[HttpGet]
+        //public IActionResult Empleado_Detalle()
+        //{
+        //    EmpleadoVM oEmpleadoVM = new EmpleadoVM()
+        //    {
+        //        oEmpleado = new Empleado(),
+        //        oListaCargo = _DBcontext.Cargos.Select(cargo => new SelectListItem()
+        //        {
+        //            Text = cargo.Descripcion,
+        //            Value = cargo.IdCargo.ToString()
+        //        }).ToList()
+        //    };
 
-            return View(oEmpleadoVM);
-        }
+        //    return View(oEmpleadoVM);
+        //}
 
         // Guardar en la DBCRUDEMPLEADO
-        [HttpPost]
-        public IActionResult Empleado_Detalle(EmpleadoVM oEmpleadoVM)
-        {
-            if (oEmpleadoVM.oEmpleado.IdEmpleado == 0)
-            {
-                _DBcontext.Empleados.Add(oEmpleadoVM.oEmpleado);
-            }
+        //[HttpPost]
+        //public IActionResult Empleado_Detalle(EmpleadoVM oEmpleadoVM)
+        //{
+        //    if (oEmpleadoVM.oEmpleado.IdEmpleado == 0)
+        //    {
+        //        _DBcontext.Empleados.Add(oEmpleadoVM.oEmpleado);
+        //    }
 
-            _DBcontext.SaveChanges();
+        //    _DBcontext.SaveChanges();
 
-            // Redireccional vista
-            return RedirectToAction("Index", "Home");
-        }
+        //    // Redireccional vista
+        //    return RedirectToAction("Index", "Home");
+        //}
 
         [HttpGet]
         public JsonResult GetEmpleados()
@@ -137,5 +139,28 @@ namespace DBCRUDEMPLEADO.Controllers
 
             return Json(cargos);
         }
+
+        [HttpPost]
+        public IActionResult GuardarEmpleado([FromBody] Empleado empleado)
+        {
+            if (empleado == null)
+            {
+                return BadRequest(new { success = false, message = "Datos inválidos" });
+            }
+
+            try
+            {
+                // Guardar el empleado en la base de datos
+                _DBcontext.Empleados.Add(empleado);
+                _DBcontext.SaveChanges();
+
+                return Ok(new { success = true, message = "Empleado guardado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Error al guardar el empleado", error = ex.Message });
+            }
+        }
+
     }
 }

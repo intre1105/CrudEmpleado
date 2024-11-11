@@ -1,34 +1,10 @@
-﻿$(document).ready(function () {
+﻿document.addEventListener('DOMContentLoaded', function(){ 
     
-    obtenerEmpleados();
-    obtenerCargos();
+    fnObtenerEmpleados();
+    fnObtenerCargos();
 });
 
-async function obtenerCargos() {
-    // Hacer la petición AJAX para obtener los cargos
-    $.ajax({
-        url: '/Home/GetCargos', // URL del método en el controlador
-        type: 'GET',
-        dataType: 'json',
-        success: await function (cargos) {
-            let opcionesHtml = '';
-
-            // Construir las opciones del select con los datos recibidos
-            cargos.forEach(function (cargo) {
-                opcionesHtml += `<option value="${cargo.idCargo}">${cargo.descripcion}</option>`;
-            });
-
-            // Insertar las opciones en el select con id CargoSelect
-            $('#cbCargos').append(opcionesHtml);
-        },
-        error: function (xhr, status, error) {
-            console.error('Error al obtener los cargos:', error);
-            alert('Hubo un problema al cargar la lista de cargos.');
-        }
-    });
-}
-
-async function obtenerEmpleados() {
+async function fnObtenerEmpleados() {
     // Hacer la petición AJAX al cargar la página
     $.ajax({
         url: '/Home/GetEmpleados', // URL del método en el controlador
@@ -63,9 +39,33 @@ async function obtenerEmpleados() {
     });
 }
 
+async function fnObtenerCargos() {
+    // Hacer la petición AJAX para obtener los cargos
+    $.ajax({
+        url: '/Home/GetCargos', // URL del método en el controlador
+        type: 'GET',
+        dataType: 'json',
+        success: await function (cargos) {
+            let opcionesHtml = '';
+
+            // Construir las opciones del select con los datos recibidos
+            cargos.forEach(function (cargo) {
+                opcionesHtml += `<option value="${cargo.idCargo}">${cargo.descripcion}</option>`;
+            });
+
+            // Insertar las opciones en el select con id CargoSelect
+            $('#cbCargos').append(opcionesHtml);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al obtener los cargos:', error);
+            alert('Hubo un problema al cargar la lista de cargos.');
+        }
+    });
+}
+
 function fnEditarEmpleado(idEmpleado) {
     console.log(idEmpleado)
-    //alert(idEmpleado)
+    // alert(idEmpleado)
 
     $.ajax({
         url: `/Home/GetEmpleadoById?idEmpleado=${idEmpleado}`,
@@ -112,8 +112,49 @@ function fnCrearEmpleado() {
     btnEditarEmpleado.classList.add('d-none');
     tituloModal.textContent = 'Nuevo Empleado';
 
+    // Limpiar campos
+    fnlimpiarCampos()
+
     // Abrir el modal
     $('#mdlEmpleado').modal('show');
-
 }
 
+function fnlimpiarCampos() {
+    $('#idEmpleado').val('');
+    $('#txtNombreCompleto').val('');
+    $('#txtCorreo').val('');
+    $('#txtTelefono').val('');
+    $('#cbCargos').val('0');
+}
+
+function fnGuardarEmpleado() {
+    // Obtener los datos del empleado desde el formulario
+    const empleado = {
+        NombreCompleto: $('#txtNombreCompleto').val(),
+        Correo: $('#txtCorreo').val(),
+        Telefono: $('#txtTelefono').val(),
+        IdCargo: $('#cbCargos').val()
+    };
+
+    console.table(empleado)
+
+    $.ajax({
+        url: '/Home/GuardarEmpleado',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(empleado),
+        success: function (response) {
+            if (response.success) {
+                alert(response.message);
+                // Actualiza la tabla de empleados (llama a una función o recarga la página)
+                location.reload();
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al guardar el empleado:', error);
+            alert('Hubo un problema al guardar el empleado.');
+        }
+    });
+}

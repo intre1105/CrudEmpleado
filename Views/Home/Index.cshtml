@@ -1,13 +1,8 @@
 ﻿@* @model List<DBCRUDEMPLEADO.Models.Empleado> *@
-@model DBCRUDEMPLEADO.Models.ViewModels.EmpleadoVM
+@* @model DBCRUDEMPLEADO.Models.ViewModels.EmpleadoVM *@
 @{
     ViewData["Title"] = "Home Page";
 }
-
-@* <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>*@
 
 <div class="card">
     <div class="card-header">
@@ -16,35 +11,6 @@
     <div class="card-body">
         <!-- Button trigger modal -->
         <a class="btn btn-success btn-sm" onclick="fnCrearEmpleado()">Crear Nuevo</a>
-
-        @* Tabla de detalles empleados *@
-        <hr />
-        @* <table class="table table-striped" id="tblEmpleados">
-        <thead>
-        <tr>
-        <th>Nombre Completo</th>
-        <th>Correo</th>
-        <th>Telefono</th>
-        <th>Cargo</th>
-        <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.oListaEmpleado)
-        {
-        <tr>
-        <td>@item.NombreCompleto</td>
-        <td>@item.Correo</td>
-        <td>@item.Telefono</td>
-        <td>@item.oCargo.Descripcion</td>
-        <td>
-        <a class="btn btn-warning btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Editar</a>
-        <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Eliminar</a>
-        </td>
-        </tr>
-        }
-        </tbody>
-        </table> *@
 
         <table class="table table-striped" id="tblEmpleados">
             <thead>
@@ -86,34 +52,20 @@
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label" for="oEmpleado.Telefono">Telefono</label>
+                        <label class="form-label" for="txtTelefono">Telefono</label>
                         <input class="form-control form-control-sm" type="text" id="txtTelefono" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="cbCargos">Cargo</label>
                         <select class="form-select form-select-sm" id="cbCargos">
-                            <option selected disabled>-- Selecccionar --</option>
+                            <option value="0" selected disabled>-- Selecccionar --</option>
                         </select>
                     </div>
                 </form>
-
-                @*  <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Nombre Completo:</label>
-                <input type="text" class="form-control" id="IdNombreCompleto">
-                </div>
-                <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Correo:</label>
-                <input type="text" class="form-control" id="IdCorreo">
-                </div>
-                <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Telefono:</label>
-                <input type="text" class="form-control" id="IdTelefono">
-                </div> *@
-
             </div>
             <div class="modal-footer">
-                <button id="btnGuardarEmpleado" class="btn btn-success d-none"> <i class="bi bi-floppy"></i> Guardar</button>
+                <button id="btnGuardarEmpleado" class="btn btn-success d-none" onclick="fnGuardarEmpleado()"> <i class="bi bi-floppy"></i> Guardar</button>
                 <button id="btnEditarEmpleado" class="btn btn-success d-none"> <i class="bi bi-floppy"></i> Actualizar</button>
                 <button type="button" class="btn btn-secondary btnCancelarModal" data-bs-dismiss="modal"> Cancelar</button>
             </div>
@@ -121,6 +73,8 @@
     </div>
 </div>
 
+@* link para usar libreria java script *@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@* Llamar el archivo javascrip *@
+
+@* Llamar el archivo main javascrip *@
 <script src="~/js/main.js"></script>
