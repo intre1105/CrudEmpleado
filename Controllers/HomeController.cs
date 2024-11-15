@@ -31,58 +31,7 @@ namespace DBCRUDEMPLEADO.Controllers
             return View();
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetEmpleados()
-        //{
-        //    try
-        //    {
-        //        var empleados = await _DBcontext.Empleados.Include(e => e.oCargo).ToListAsync();
-        //        return Json(empleados);
-        //    }
-        //    catch (DbUpdateException dbEx)
-        //    {
-        //        Debug.WriteLine($"Error en la base de datos: {dbEx.Message}");
-        //        return StatusCode(500, "Error en la base de datos");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Error al obtener empleados: {ex.Message}");
-        //        return StatusCode(500, "Internal server error");
-        //    }
-        //}
-
-        // Traer un elemento empleado vacio con una lista de cargo 
-        //[HttpGet]
-        //public IActionResult Empleado_Detalle()
-        //{
-        //    EmpleadoVM oEmpleadoVM = new EmpleadoVM()
-        //    {
-        //        oEmpleado = new Empleado(),
-        //        oListaCargo = _DBcontext.Cargos.Select(cargo => new SelectListItem()
-        //        {
-        //            Text = cargo.Descripcion,
-        //            Value = cargo.IdCargo.ToString()
-        //        }).ToList()
-        //    };
-
-        //    return View(oEmpleadoVM);
-        //}
-
-        // Guardar en la DBCRUDEMPLEADO
-        //[HttpPost]
-        //public IActionResult Empleado_Detalle(EmpleadoVM oEmpleadoVM)
-        //{
-        //    if (oEmpleadoVM.oEmpleado.IdEmpleado == 0)
-        //    {
-        //        _DBcontext.Empleados.Add(oEmpleadoVM.oEmpleado);
-        //    }
-
-        //    _DBcontext.SaveChanges();
-
-        //    // Redireccional vista
-        //    return RedirectToAction("Index", "Home");
-        //}
-
+        // Obtener lista de todos los empleados
         [HttpGet]
         public JsonResult GetEmpleados()
         {
@@ -101,6 +50,52 @@ namespace DBCRUDEMPLEADO.Controllers
             return Json(empleados);
         }
 
+        // Obtener cargos para el combo box en la vista
+        [HttpGet]
+        public JsonResult GetCargos()
+        {
+            var cargos = _DBcontext.Cargos
+                .Select(c => new
+                {
+                    c.IdCargo,
+                    c.Descripcion
+                })
+                .ToList();
+
+            return Json(cargos);
+        }
+
+        // Guardar nuevo empleado
+        [HttpPost]
+        public IActionResult GuardarEmpleado([FromBody] Empleado empleado)
+        {
+            if (ModelState.IsValid)
+            {
+                if (empleado == null)
+                {
+                    return BadRequest(new { success = false, message = "Datos inválidos" });
+                }
+
+                try
+                {
+                    // Datos del empleado listo para guardae
+                    _DBcontext.Empleados.Add(empleado);
+                    _DBcontext.SaveChanges();
+
+                    return Ok(new { success = true, message = "Empleado guardado correctamente" });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { success = false, message = "Error al guardar el empleado", error = ex.Message });
+                }
+            }
+            else
+            {
+                return Json(new { success = false, message = "Error en los datos del empleado" });
+            }
+        }
+
+        // Obtener empleado por Id para editar
         [HttpGet]
         public JsonResult GetEmpleadoById(int idEmpleado)
         {
@@ -126,41 +121,65 @@ namespace DBCRUDEMPLEADO.Controllers
             return Json(new { success = true, empleado });
         }
 
-        [HttpGet]
-        public JsonResult GetCargos()
-        {
-            var cargos = _DBcontext.Cargos
-                .Select(c => new
-                {
-                    c.IdCargo,
-                    c.Descripcion
-                })
-                .ToList();
-
-            return Json(cargos);
-        }
-
+        // Actualizar empleado
         [HttpPost]
-        public IActionResult GuardarEmpleado([FromBody] Empleado empleado)
+        public IActionResult ActualizarEmpleado([FromBody] Empleado empleado)
         {
-            if (empleado == null)
-            {
-                return BadRequest(new { success = false, message = "Datos inválidos" });
-            }
-
             try
             {
-                // Guardar el empleado en la base de datos
-                _DBcontext.Empleados.Add(empleado);
+                // Buscar al empleado existente en la base de datos
+                var empleadoExistente = _DBcontext.Empleados.Find(empleado.IdEmpleado);
+                if (empleadoExistente == null)
+                {
+                    return Json(new { success = false, message = "Empleado no encontrado." });
+                }
+
+                // Actualizar los datos del empleado
+                empleadoExistente.NombreCompleto = empleado.NombreCompleto;
+                empleadoExistente.Correo = empleado.Correo;
+                empleadoExistente.Telefono = empleado.Telefono;
+                empleadoExistente.IdCargo = empleado.IdCargo;
+
+                // Guardar los cambios en la base de datos
                 _DBcontext.SaveChanges();
 
-                return Ok(new { success = true, message = "Empleado guardado correctamente" });
+                return Json(new { success = true, message = "Empleado actualizado correctamente." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "Error al guardar el empleado", error = ex.Message });
+                return StatusCode(500, new { success = false, message = "Error al actualizar el empleado.", error = ex.Message });
             }
         }
 
+        // Eliminar empleado
+        [HttpPost]
+        public JsonResult EliminarEmpleado(int idEmpleado)
+        {
+            try
+            {    
+                // Buscar el empleado en la base de datos por su ID
+                var empleado = _DBcontext.Empleados.SingleOrDefault(e => e.IdEmpleado == idEmpleado);
+
+                if (empleado != null)
+                {
+                    // Eliminar el empleado de la base de datos
+                    _DBcontext.Empleados.Remove(empleado);
+
+                    // Guardar los cambios en la base de datos
+                    _DBcontext.SaveChanges();
+
+                    return Json(new { success = true, message = "Empleado eliminado correctamente." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "El empleado no existe." });
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Hubo un problema al eliminar el empleado: " + ex.Message });
+            }
+        }
     }
 }

@@ -6,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Compilar cambios en tiempo real
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+
 //Servicio cadena de conecion con DbContext
 builder.Services.AddDbContext<DbcrudempleadoContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"))

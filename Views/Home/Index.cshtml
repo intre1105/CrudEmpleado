@@ -23,6 +23,7 @@
                 </tr>
             </thead>
             <tbody>
+
             </tbody>
         </table>
 
@@ -65,8 +66,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button id="btnGuardarEmpleado" class="btn btn-success d-none" onclick="fnGuardarEmpleado()"> <i class="bi bi-floppy"></i> Guardar</button>
-                <button id="btnEditarEmpleado" class="btn btn-success d-none"> <i class="bi bi-floppy"></i> Actualizar</button>
+                <button id="btnGuardarEmpleado" class="btn btn-success d-none" onclick="fnGuardarEmpleado($('#idEmpleado').val(), $('#txtNombreCompleto').val())"> <i class="bi bi-floppy"></i> Guardar</button>
+                <button id="btnEditarEmpleado" class="btn btn-success d-none" onclick="fnActualizarEmpleado($('#idEmpleado').val(), $('#txtNombreCompleto').val())"> <i class="bi bi-floppy"></i> Actualizar</button>
                 <button type="button" class="btn btn-secondary btnCancelarModal" data-bs-dismiss="modal"> Cancelar</button>
             </div>
         </div>

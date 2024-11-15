@@ -1,5 +1,5 @@
-﻿document.addEventListener('DOMContentLoaded', function(){ 
-    
+﻿document.addEventListener('DOMContentLoaded', function () {
+
     fnObtenerEmpleados();
     fnObtenerCargos();
 });
@@ -24,12 +24,14 @@ async function fnObtenerEmpleados() {
                                 <td>${empleado.cargoDescripcion}</td>
                                 <td>
                                     <a class="btn btn-warning btn-sm" onclick="fnEditarEmpleado(${empleado.idEmpleado})">Editar</a>
-                                    <a class="btn btn-danger btn-sm">Eliminar</a>
+                                    <a class="btn btn-danger btn-sm" onclick="fnEliminarEmpleado(${empleado.idEmpleado}, '${empleado.nombreCompleto}')">Eliminar</a>
                                 </td>
                             </tr>`;
             });
 
-            // Insertar las filas en el tbody de la tabla
+            // Limpiar el data table
+            $('#tblEmpleados tbody').html('');
+            // Insertar las filas en el tbody de la tabla           
             $('#tblEmpleados tbody').html(respuestaHtml);
         },
         error: function (xhr, status, error) {
@@ -63,6 +65,71 @@ async function fnObtenerCargos() {
     });
 }
 
+function fnCrearEmpleado() {
+    const tituloModal = document.getElementById('tituloModal');
+    const btnGuardarEmpleado = document.getElementById('btnGuardarEmpleado');
+    const btnEditarEmpleado = document.getElementById('btnEditarEmpleado');
+    btnGuardarEmpleado.classList.remove('d-none');
+    btnEditarEmpleado.classList.add('d-none');
+    tituloModal.textContent = 'Nuevo Empleado';
+
+    // Limpiar campos
+    fnlimpiarCampos()
+
+    // Abrir el modal
+    $('#mdlEmpleado').modal('show');
+}
+
+function fnlimpiarCampos() {
+    $('#idEmpleado').val('');
+    $('#txtNombreCompleto').val('');
+    $('#txtCorreo').val('');
+    $('#txtTelefono').val('');
+    $('#cbCargos').val('0');
+}
+
+function fnGuardarEmpleado(idEmpleado, nombreEmpleado) {
+    // Obtener los datos del empleado desde el formulario
+    const empleado = {
+        NombreCompleto: $('#txtNombreCompleto').val(),
+        Correo: $('#txtCorreo').val(),
+        Telefono: $('#txtTelefono').val(),
+        IdCargo: $('#cbCargos').val()
+    };
+
+    $.ajax({
+        url: '/Home/GuardarEmpleado',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(empleado),
+        success: function (response) {
+            if (response.success) {
+                let timerInterval;
+                Swal.fire({
+                    icon: "success",
+                    title: "Empleado Guardado",
+                    html: `<span style="font-size: 25px;">El Empleado ${nombreEmpleado} Se Guardo Correctamente</span>`,
+                }).then((result) => { 
+                    // Confirmar y Cerrar OK
+                    if (result.isConfirmed) {
+                        // Cerrar modal
+                        $('#mdlEmpleado').modal('hide')
+                        // Función traer y refrescar la lista de empleados en data table
+                        fnObtenerEmpleados();
+                    }
+                });
+                
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al guardar el empleado:', error);
+            alert('Hubo un problema al guardar el empleado.');
+        }
+    });
+}
+
 function fnEditarEmpleado(idEmpleado) {
     console.log(idEmpleado)
     // alert(idEmpleado)
@@ -73,7 +140,7 @@ function fnEditarEmpleado(idEmpleado) {
         dataType: 'json',
         success: function (response) {
             if (response.success) {
-                console.log(response.empleado)
+                //console.log(response.empleado)
 
                 const tituloModal = document.getElementById('tituloModal');
                 const btnGuardarEmpleado = document.getElementById('btnGuardarEmpleado');
@@ -104,57 +171,88 @@ function fnEditarEmpleado(idEmpleado) {
     });
 }
 
-function fnCrearEmpleado() {
-    const tituloModal = document.getElementById('tituloModal');
-    const btnGuardarEmpleado = document.getElementById('btnGuardarEmpleado');
-    const btnEditarEmpleado = document.getElementById('btnEditarEmpleado');
-    btnGuardarEmpleado.classList.remove('d-none');
-    btnEditarEmpleado.classList.add('d-none');
-    tituloModal.textContent = 'Nuevo Empleado';
-
-    // Limpiar campos
-    fnlimpiarCampos()
-
-    // Abrir el modal
-    $('#mdlEmpleado').modal('show');
-}
-
-function fnlimpiarCampos() {
-    $('#idEmpleado').val('');
-    $('#txtNombreCompleto').val('');
-    $('#txtCorreo').val('');
-    $('#txtTelefono').val('');
-    $('#cbCargos').val('0');
-}
-
-function fnGuardarEmpleado() {
-    // Obtener los datos del empleado desde el formulario
-    const empleado = {
-        NombreCompleto: $('#txtNombreCompleto').val(),
-        Correo: $('#txtCorreo').val(),
-        Telefono: $('#txtTelefono').val(),
-        IdCargo: $('#cbCargos').val()
+function fnActualizarEmpleado(idEmpleado, nombreEmpleado) {
+    const empleadoData = {
+        idEmpleado: $('#idEmpleado').val(),
+        nombreCompleto: $('#txtNombreCompleto').val(),
+        correo: $('#txtCorreo').val(),
+        telefono: $('#txtTelefono').val(),
+        idCargo: $('#cbCargos').val()
     };
 
-    console.table(empleado)
-
     $.ajax({
-        url: '/Home/GuardarEmpleado',
+        url: '/Home/ActualizarEmpleado',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify(empleado),
+        data: JSON.stringify(empleadoData),
+        dataType: 'json',
         success: function (response) {
-            if (response.success) {
-                alert(response.message);
-                // Actualiza la tabla de empleados (llama a una función o recarga la página)
-                location.reload();
+            if (response.success) {                             
+                Swal.fire({
+                    icon: "success",
+                    title: "Empleado Actualizado",           
+                    html: `<span style="font-size: 25px;">El Empleado ${nombreEmpleado} Se Actualizo Correctamente</span>`,
+                }).then((result) => {                    
+                    // Confirmar y Cerrar OK
+                    if (result.isConfirmed) {
+                        // Cerrar modal
+                        $('#mdlEmpleado').modal('hide')
+                        // Función traer y refrescar la lista de empleados en data table
+                        fnObtenerEmpleados();     
+                    }
+                });
             } else {
                 alert(response.message);
             }
         },
         error: function (xhr, status, error) {
-            console.error('Error al guardar el empleado:', error);
-            alert('Hubo un problema al guardar el empleado.');
+            console.error('Error al actualizar los datos del empleado:', error);
+            alert('Hubo un problema al actualizar los datos del empleado.');
+        }
+    });
+}
+
+function fnEliminarEmpleado(idEmpleado, nombreEmpleado) {
+    Swal.fire({
+        title: "¿Deseas eliminar el empleado?",
+        text: `${nombreEmpleado}`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#C70039",
+        cancelButtonColor: "#50",
+        confirmButtonText: "Si, Eliminar",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/Home/EliminarEmpleado', // Asegúrate de que esta URL coincida con tu ruta en el controlador
+                type: 'POST',
+                data: { idEmpleado: idEmpleado },
+                success: function (response) {
+                    if (response.success) {
+                        let timerInterval;
+                        Swal.fire({
+                            title: "Empleado Eliminado",
+                            html: `<span style="font-size: 25px;">El Empleado ${nombreEmpleado} Se Elimino Correctamente</span>`,                            
+                        }).then((result) => {
+                            /* Read more about handling dismissals below */
+                            if (result.isConfirmed) {
+                                // Cerrar modal
+                                $('#mdlEmpleado').modal('hide')
+                                // Función traer y refrescar la lista de empleados en data table
+                                fnObtenerEmpleados();
+                            }
+                        });
+                        
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al eliminar el empleado:', error);
+                    alert('Hubo un problema al eliminar el empleado.');
+                }
+            })
         }
     });
 }
