@@ -213,10 +213,9 @@ function fnActualizarEmpleado(idEmpleado, nombreEmpleado) {
 }
 
 function fnEliminarEmpleado(idEmpleado, nombreEmpleado) {
-    Swal.fire({
-        title: "¿Deseas eliminar el empleado?",
-        text: `${nombreEmpleado}`,
+    Swal.fire({    
         icon: "question",
+        html: `<span style="font-size: 25px;">¿Desea Eliminar El Empleado ${nombreEmpleado}?</span>`,
         showCancelButton: true,
         confirmButtonColor: "#C70039",
         cancelButtonColor: "#50",
@@ -232,6 +231,7 @@ function fnEliminarEmpleado(idEmpleado, nombreEmpleado) {
                     if (response.success) {
                         let timerInterval;
                         Swal.fire({
+                            icon: "success",
                             title: "Empleado Eliminado",
                             html: `<span style="font-size: 25px;">El Empleado ${nombreEmpleado} Se Elimino Correctamente</span>`,                            
                         }).then((result) => {

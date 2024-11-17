@@ -16,7 +16,7 @@ namespace DBCRUDEMPLEADO.Controllers
             _DBcontext = context;
         }
 
-        public IActionResult Index()
+        public async Task <IActionResult> Index()
         {
             //List<Empleado> listaEmpleado = _DBcontext.Empleados.Include(c => c.oCargo).ToList();
             //List<Cargo> listaCargo = _DBcontext.Cargos.ToList();
@@ -33,9 +33,9 @@ namespace DBCRUDEMPLEADO.Controllers
 
         // Obtener lista de todos los empleados
         [HttpGet]
-        public JsonResult GetEmpleados()
+        public async Task <JsonResult> GetEmpleados()
         {
-            var empleados = _DBcontext.Empleados
+            var empleados = await _DBcontext.Empleados
                 .Include(e => e.oCargo)
                 .Select(e => new
                 {
@@ -45,29 +45,29 @@ namespace DBCRUDEMPLEADO.Controllers
                     e.Telefono,
                     CargoDescripcion = e.oCargo != null ? e.oCargo.Descripcion : "Sin Cargo"
                 })
-                .ToList();
+                .ToListAsync();
 
             return Json(empleados);
         }
 
         // Obtener cargos para el combo box en la vista
         [HttpGet]
-        public JsonResult GetCargos()
+        public async Task<JsonResult> GetCargos()
         {
-            var cargos = _DBcontext.Cargos
+            var cargos = await _DBcontext.Cargos
                 .Select(c => new
                 {
                     c.IdCargo,
                     c.Descripcion
                 })
-                .ToList();
+                .ToListAsync();
 
             return Json(cargos);
         }
 
         // Guardar nuevo empleado
         [HttpPost]
-        public IActionResult GuardarEmpleado([FromBody] Empleado empleado)
+        public async Task<IActionResult> GuardarEmpleado([FromBody] Empleado empleado)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +80,7 @@ namespace DBCRUDEMPLEADO.Controllers
                 {
                     // Datos del empleado listo para guardae
                     _DBcontext.Empleados.Add(empleado);
-                    _DBcontext.SaveChanges();
+                    await _DBcontext.SaveChangesAsync(); // Usa SaveChangesAsync() en lugar de SaveChanges()
 
                     return Ok(new { success = true, message = "Empleado guardado correctamente" });
                 }
@@ -97,9 +97,9 @@ namespace DBCRUDEMPLEADO.Controllers
 
         // Obtener empleado por Id para editar
         [HttpGet]
-        public JsonResult GetEmpleadoById(int idEmpleado)
+        public async Task <JsonResult> GetEmpleadoByIdAsync(int idEmpleado)
         {
-            var empleado = _DBcontext.Empleados
+            var empleado = await _DBcontext.Empleados
                 .Include(e => e.oCargo)
                 .Where(e => e.IdEmpleado == idEmpleado)
                 .Select(e => new
@@ -111,7 +111,7 @@ namespace DBCRUDEMPLEADO.Controllers
                     IdCargo = e.oCargo != null ? e.oCargo.IdCargo : (int?)null,
                     CargoDescripcion = e.oCargo != null ? e.oCargo.Descripcion : "Sin Cargo"
                 })
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (empleado == null)
             {
@@ -123,12 +123,12 @@ namespace DBCRUDEMPLEADO.Controllers
 
         // Actualizar empleado
         [HttpPost]
-        public IActionResult ActualizarEmpleado([FromBody] Empleado empleado)
+        public async Task<IActionResult> ActualizarEmpleado([FromBody] Empleado empleado)
         {
             try
             {
                 // Buscar al empleado existente en la base de datos
-                var empleadoExistente = _DBcontext.Empleados.Find(empleado.IdEmpleado);
+                var empleadoExistente = await _DBcontext.Empleados.FindAsync(empleado.IdEmpleado);
                 if (empleadoExistente == null)
                 {
                     return Json(new { success = false, message = "Empleado no encontrado." });
@@ -141,7 +141,7 @@ namespace DBCRUDEMPLEADO.Controllers
                 empleadoExistente.IdCargo = empleado.IdCargo;
 
                 // Guardar los cambios en la base de datos
-                _DBcontext.SaveChanges();
+                await _DBcontext.SaveChangesAsync();
 
                 return Json(new { success = true, message = "Empleado actualizado correctamente." });
             }
@@ -153,12 +153,12 @@ namespace DBCRUDEMPLEADO.Controllers
 
         // Eliminar empleado
         [HttpPost]
-        public JsonResult EliminarEmpleado(int idEmpleado)
+        public async Task<JsonResult> EliminarEmpleado(int idEmpleado)
         {
             try
             {    
                 // Buscar el empleado en la base de datos por su ID
-                var empleado = _DBcontext.Empleados.SingleOrDefault(e => e.IdEmpleado == idEmpleado);
+                var empleado = await _DBcontext.Empleados.SingleOrDefaultAsync(e => e.IdEmpleado == idEmpleado);
 
                 if (empleado != null)
                 {
@@ -166,7 +166,7 @@ namespace DBCRUDEMPLEADO.Controllers
                     _DBcontext.Empleados.Remove(empleado);
 
                     // Guardar los cambios en la base de datos
-                    _DBcontext.SaveChanges();
+                    await _DBcontext.SaveChangesAsync();
 
                     return Json(new { success = true, message = "Empleado eliminado correctamente." });
                 }
